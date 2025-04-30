@@ -201,4 +201,4 @@ class Base:
         import json
         print(self.__scenario)
         with open(f'{self.__class__.__name__}.json', 'w') as file:
-            json.dump(self.__scenario, file)
+            json.dump(self.__scenario, file, indent=2)

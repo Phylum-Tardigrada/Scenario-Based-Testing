@@ -34,6 +34,12 @@ class MainPage_Navigation(Base):
         _page.get_by_role("menuitem", name="Home").click()
         _page.wait_for_url("**/")
 
+        # Click to open the dropdown
+        _page.get_by_role("button", name="Navigate").click()
+
+        # Wait for the listbox or menu to appear
+        _page.get_by_role("menu").wait_for()
+
         self._chk(act=_page.url, ref=url)
 
         self._dbg("Search Page Navigation")
