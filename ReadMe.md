@@ -10,7 +10,6 @@
 
 ```
   python -m pip install -r requirements.txt
-
 ```
 # run
 
@@ -18,5 +17,4 @@
 
 ```
   python functional.py --url <url> --headless
-
 ```
