@@ -9,7 +9,7 @@ def natural_sort_key(s):
     return [int(text) if text.isdigit() else text for text in re.split(r'(\d+)', s)]
 
 
-class Base:
+class Scenario:
 
     __vars = {}
     __tasks = []
@@ -32,7 +32,7 @@ class Base:
         class_st_ts = datetime.now().isoformat()
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=confs['headless'])
+            browser = p.chromium.launch(headless=confs.get('headless', False))
             context = browser.new_context(
                 permissions=["geolocation"],
                 geolocation={"latitude": 52.52,
@@ -71,7 +71,7 @@ class Base:
                     self.__tasks[-1].update(
                         {
                             'out': returns,
-                            'vars': self.__vars,
+                            # 'vars': self.__vars,
                             'st_ts': func_st_ts,
                             'nd_ts': func_nd_ts,
                             'lines': self.__lines
@@ -81,7 +81,7 @@ class Base:
                     self.__tasks[-1].update(
                         {
                             'err': err,
-                            'vars': self.__vars,
+                            # 'vars': self.__vars,
                             'st_ts': func_st_ts,
                             'nd_ts': func_nd_ts,
                             'lines': self.__lines
@@ -90,13 +90,15 @@ class Base:
 
             class_nd_ts = datetime.now().isoformat()
             self.__scenario = {
+                'run': confs.get('run', None),
                 'typ': 'scenario',
                 'obj': self.__class__.__name__,
                 'desc': inspect.getcomments(self.__class__)[1:].strip(),
                 'doc': inspect.getdoc(self.__class__),
                 'st_ts': class_st_ts,
                 'nd_ts': class_nd_ts,
-                'tasks': self.__tasks
+                'tasks': self.__tasks,
+                'vars': self.__vars
             }
 
             browser.close()
@@ -205,6 +207,10 @@ class Base:
     def close(self):
 
         import json
-        print(self.__scenario)
-        with open(f'{self.__class__.__name__}.json', 'w') as file:
+        tmp_dir = self.__vars.get('run', None)
+        if tmp_dir:
+            fname = f"{tmp_dir}/{self.__class__.__name__}.json"
+        else:
+            fname = f"{self.__class__.__name__}.json"
+        with open(fname, 'w') as file:
             json.dump(self.__scenario, file, indent=2)
