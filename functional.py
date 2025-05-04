@@ -20,19 +20,21 @@ class MainPage_Navigation(Base):
         # Wait for the listbox or menu to appear
         _page.get_by_role("menu").wait_for()
 
-        # Get all options by role
-        # or "menuitem", depending on markup
+        # Get all options by role menuitem, depending on markup
         options = _page.get_by_role("menuitem").all()
         option_texts = [opt.inner_text() for opt in options]
 
+        # Check if only ['Home', 'Search & Submit'] is present in the dropdown options when not logged in
         self._chk(act=option_texts, ref=['Home', 'Search & Submit'])
 
-        self._info("Checking Page navigation for each of the options")
+        time.sleep(2)
 
-        self._dbg("Home Page Navigation")
+    # Check if Home page is navigated correctly
+    def task_2(self, _page, url):
+        """ Check if Home page is navigated correctly """
+
+        self._info("Checking Home Page Navigation")
         _page.goto(f"{url}/")
-        _page.get_by_role("menuitem", name="Home").click()
-        _page.wait_for_url("**/")
 
         # Click to open the dropdown
         _page.get_by_role("button", name="Navigate").click()
@@ -40,20 +42,50 @@ class MainPage_Navigation(Base):
         # Wait for the listbox or menu to appear
         _page.get_by_role("menu").wait_for()
 
+        # Click on the "Home" option
+        _page.get_by_role("menuitem", name="Home").click()
+
+        # Wait for the navigation to complete
+        # or until a specific element is visible on the new page
+        _page.wait_for_url("**/")
+
+        # Check if the navigation is successful
         self._chk(act=_page.url, ref=url)
 
-        self._dbg("Search Page Navigation")
-        _page.goto(f"{url}/")
-        _page.get_by_role("menuitem", name="Search & Submit").click()
-        _page.wait_for_url("**/search")
-
-        self._chk(act=_page.url, ref=f"{url}/search")
-
+        time.sleep(3)
+        # Take a screenshot and pin it for reference
         img = f"{int(datetime.now().timestamp())}.png"
         _page.screenshot(path=img)
         self._pin(loc=img)
 
+    # Check if Search & Submit page is navigated correctly
+    def task_3(self, _page, url):
+        """ Check if Search & Submit page is navigated correctly """
+
+        self._info("Search Page Navigation")
+        _page.goto(f"{url}/")
+
+        # Click to open the dropdown
+        _page.get_by_role("button", name="Navigate").click()
+
+        # Wait for the listbox or menu to appear
+        _page.get_by_role("menu").wait_for()
+
+        # Click on the "Search & Submit" option
+        _page.get_by_role("menuitem", name="Search & Submit").click()
+
+        # wait for navigation to complete
+        # or until a specific element is visible on the new page
+        _page.wait_for_url("**/search")
+
+        # Check if the navigation is successful
+        self._chk(act=_page.url, ref=f"{url}/search")
+
         time.sleep(3)
+        # Take a screenshot and pin it for reference
+        img = f"{int(datetime.now().timestamp())}.png"
+        _page.screenshot(path=img)
+        self._pin(loc=img)
 
 
 # Example

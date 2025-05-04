@@ -33,7 +33,13 @@ class Base:
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=confs['headless'])
-            page = browser.new_page()
+            context = browser.new_context(
+                permissions=["geolocation"],
+                geolocation={"latitude": 52.52,
+                             "longitude": 13.4050},  # Example: Berlin
+                locale="en-US"
+            )
+            page = context.new_page()
             page.wait_for_timeout(10000)
 
             # Call each method in order
