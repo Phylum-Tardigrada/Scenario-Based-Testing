@@ -9,7 +9,7 @@
 - use conda (Miniforge) environment for isolated development (ease of managing dependencies)
 
 ```
-  python -m pip install -r requirements.txt
+  python -m pip install -r reqs.txt
 ```
 # run
 
