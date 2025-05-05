@@ -10,6 +10,7 @@
 
 ```
   python -m pip install -r reqs.txt
+  playwright install
 ```
 # run
 

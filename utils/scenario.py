@@ -9,13 +9,13 @@ def natural_sort_key(s):
     return [int(text) if text.isdigit() else text for text in re.split(r'(\d+)', s)]
 
 
-class Base:
+class Scenario:
 
     __vars = {}
     __tasks = []
     __lines = {}
 
-    def __init__(self, **confs):
+    def __init__(self, _page, **confs):
 
         self.__vars = confs
 
@@ -31,69 +31,66 @@ class Base:
         matched_methods.sort(key=lambda x: natural_sort_key(x[0]))
         class_st_ts = datetime.now().isoformat()
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=confs['headless'])
-            page = browser.new_page()
-            page.wait_for_timeout(10000)
+        _page.wait_for_timeout(10000)
 
-            # Call each method in order
-            for name, method in matched_methods:
+        # Call each method in order
+        for name, method in matched_methods:
 
-                kwargs = list(inspect.signature(method).parameters.keys())
-                params = {key: self.__vars[key]
-                          for key in self.__vars if key in kwargs}
+            kwargs = list(inspect.signature(method).parameters.keys())
+            params = {key: self.__vars[key]
+                        for key in self.__vars if key in kwargs}
 
-                self.__tasks.append(
+            self.__tasks.append(
+                {
+                    'typ': 'task',
+                    'obj': method.__name__,
+                    'desc': inspect.getcomments(method)[1:].strip(),
+                    'doc': inspect.getdoc(method),
+                    'src': inspect.getsource(method),
+                    'inp': params,
+                }
+            )
+
+            try:
+                returns = {}
+                self.__lines = {}
+                func_st_ts = datetime.now().isoformat()
+                returns = method(_page, **params)
+                if returns:
+                    self.__vars.update(returns)
+                func_nd_ts = datetime.now().isoformat()
+                self.__tasks[-1].update(
                     {
-                        'typ': 'task',
-                        'obj': method.__name__,
-                        'desc': inspect.getcomments(method)[1:].strip(),
-                        'doc': inspect.getdoc(method),
-                        'src': inspect.getsource(method),
-                        'inp': params,
+                        'out': returns,
+                        # 'vars': self.__vars,
+                        'st_ts': func_st_ts,
+                        'nd_ts': func_nd_ts,
+                        'lines': self.__lines
+                    }
+                )
+            except Exception as err:
+                self.__tasks[-1].update(
+                    {
+                        'err': err,
+                        # 'vars': self.__vars,
+                        'st_ts': func_st_ts,
+                        'nd_ts': func_nd_ts,
+                        'lines': self.__lines
                     }
                 )
 
-                try:
-                    returns = {}
-                    self.__lines = {}
-                    func_st_ts = datetime.now().isoformat()
-                    returns = method(_page=page, **params)
-                    if returns:
-                        self.__vars.update(returns)
-                    func_nd_ts = datetime.now().isoformat()
-                    self.__tasks[-1].update(
-                        {
-                            'out': returns,
-                            'vars': self.__vars,
-                            'st_ts': func_st_ts,
-                            'nd_ts': func_nd_ts,
-                            'lines': self.__lines
-                        }
-                    )
-                except Exception as err:
-                    self.__tasks[-1].update(
-                        {
-                            'err': err,
-                            'vars': self.__vars,
-                            'st_ts': func_st_ts,
-                            'nd_ts': func_nd_ts,
-                            'lines': self.__lines
-                        }
-                    )
-
-            class_nd_ts = datetime.now().isoformat()
-            self.__scenario = {
-                'typ': 'scenario',
-                'obj': self.__class__.__name__,
-                'desc': inspect.getcomments(self.__class__)[1:].strip(),
-                'doc': inspect.getdoc(self.__class__),
-                'st_ts': class_st_ts,
-                'nd_ts': class_nd_ts,
-                'tasks': self.__tasks
-            }
-
-            browser.close()
+        class_nd_ts = datetime.now().isoformat()
+        self.__scenario = {
+            'run': confs.get('run', None),
+            'typ': 'scenario',
+            'obj': self.__class__.__name__,
+            'desc': inspect.getcomments(self.__class__)[1:].strip(),
+            'doc': inspect.getdoc(self.__class__),
+            'st_ts': class_st_ts,
+            'nd_ts': class_nd_ts,
+            'tasks': self.__tasks,
+            'vars': self.__vars
+        }
 
     def _dbg(self, msg):
 
@@ -199,6 +196,10 @@ class Base:
     def close(self):
 
         import json
-        print(self.__scenario)
-        with open(f'{self.__class__.__name__}.json', 'w') as file:
+        tmp_dir = self.__vars.get('run', None)
+        if tmp_dir:
+            fname = f"{tmp_dir}/{self.__class__.__name__}.json"
+        else:
+            fname = f"{self.__class__.__name__}.json"
+        with open(fname, 'w') as file:
             json.dump(self.__scenario, file, indent=2)
