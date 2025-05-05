@@ -26,6 +26,60 @@ print("Endpoint:", args.url)
 print("Headless:", args.headless)
 
 with Session(domain=args.url, headless=args.headless) as sn:
-    MainPage_Navigation1(**sn.confs).close()
-    MainPage_Navigation2(**sn.confs).close()
-    MainPage_Navigation3(**sn.confs).close()
+
+    _page = sn.new_page(
+        permissions=["geolocation"],
+        geolocation={
+            "latitude": 52.52,
+            "longitude": 13.4050
+        },
+        locale="en-US",
+        record_video_dir=str(sn.confs['run']),
+        record_video_size={"width": 1280, "height": 720}
+    )
+
+    MainPage_Navigation1(_page, **sn.confs).close()
+    MainPage_Navigation2(_page, **sn.confs).close()
+    MainPage_Navigation3(_page, **sn.confs).close()
+
+    _page.close()
+    video_path = _page.video.path()
+    print(f"Video saved at: {video_path}")
+
+    _page = sn.new_page(
+        permissions=["geolocation"],
+        geolocation={
+            "latitude": 52.52,
+            "longitude": 13.4050
+        },
+        locale="en-US",
+        record_video_dir=str(sn.confs['run']),
+        record_video_size={"width": 1280, "height": 720}
+    )
+
+    MainPage_Navigation1(_page, **sn.confs).close()
+    MainPage_Navigation2(_page, **sn.confs).close()
+    MainPage_Navigation3(_page, **sn.confs).close()
+
+    _page.close()
+    video_path = _page.video.path()
+    print(f"Video saved at: {video_path}")
+
+    _page = sn.new_page(
+        permissions=["geolocation"],
+        geolocation={
+            "latitude": 52.52,
+            "longitude": 13.4050
+        },
+        locale="en-US",
+        record_video_dir=str(sn.confs['run']),
+        record_video_size={"width": 1280, "height": 720}
+    )
+
+    MainPage_Navigation1(_page, **sn.confs).close()
+    MainPage_Navigation2(_page, **sn.confs).close()
+    MainPage_Navigation3(_page, **sn.confs).close()
+
+    _page.close()
+    video_path = _page.video.path()
+    print(f"Video saved at: {video_path}")

@@ -30,7 +30,7 @@ class MainPage_Navigation1(Scenario):
         time.sleep(2)
 
     # Check if Home page is navigated correctly
-    def task_2(self, _page, domain):
+    def task_2(self, _page, domain, run):
         """ Check if Home page is navigated correctly """
 
         self._info("Checking Home Page Navigation")
@@ -54,12 +54,12 @@ class MainPage_Navigation1(Scenario):
 
         time.sleep(3)
         # Take a screenshot and pin it for reference
-        img = f"{int(datetime.now().timestamp())}.png"
+        img = f"{run}/{int(datetime.now().timestamp())}.png"
         _page.screenshot(path=img)
         self._pin(loc=img)
 
     # Check if Search & Submit page is navigated correctly
-    def task_3(self, _page, domain):
+    def task_3(self, _page, domain, run):
         """ Check if Search & Submit page is navigated correctly """
 
         self._info("Search Page Navigation")
@@ -83,6 +83,6 @@ class MainPage_Navigation1(Scenario):
 
         time.sleep(3)
         # Take a screenshot and pin it for reference
-        img = f"{int(datetime.now().timestamp())}.png"
+        img = f"{run}/{int(datetime.now().timestamp())}.png"
         _page.screenshot(path=img)
         self._pin(loc=img)
