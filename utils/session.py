@@ -14,7 +14,7 @@ class Session:
     def __enter__(self):
 
         now = datetime.now()
-        self.confs['run'] = str(int(now.timestamp()))  # Folder Name
+        self.confs['run'] = f"out_{int(now.timestamp())}"  # Folder Name
         self.confs['ts'] = now.isoformat()  # Session Time (ISO Format)
         # Create a folder with the current timestamp as its name
         os.makedirs(Path(self.confs['run']).absolute(), exist_ok=True)
